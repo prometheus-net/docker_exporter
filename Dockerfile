@@ -3,16 +3,15 @@ WORKDIR /app
 
 # Separate layers here to avoid redoing dependencies on code change.
 COPY *.sln .
-COPY DockerExporter/*.csproj ./DockerExporter/
+COPY *.csproj .
 RUN dotnet restore
 
 # Now the code.
-COPY DockerExporter/. ./DockerExporter/
-WORKDIR /app/DockerExporter
+COPY . .
 RUN dotnet publish -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS runtime
 WORKDIR /app
-COPY --from=build /app/DockerExporter/out ./
+COPY --from=build /app/out .
 
 ENTRYPOINT ["dotnet", "DockerExporter.dll"]

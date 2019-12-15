@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>DockerExporter</AssemblyName>
+    <AssemblyName>docker_exporter</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>

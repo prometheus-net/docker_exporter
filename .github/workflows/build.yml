@@ -13,9 +13,9 @@ jobs:
         VERSIONSTRING: ${{ steps.make_version_string.outputs.versionstring }}
       with:
         path: Constants.cs
-#    - name: Publish to Registry
-#      uses: elgohr/Publish-Docker-Github-Action@master
-#      with:
-#        name: sandersaares/test123
-#        username: sandersaares
-#        password: ${{ secrets.docker_hub_token }}
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: sandersaares/test123
+        username: sandersaares
+        password: ${{ secrets.docker_hub_token }}
