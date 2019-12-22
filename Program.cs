@@ -54,23 +54,9 @@ namespace DockerExporter
 
                 Environment.ExitCode = -1;
             }
-            catch (AggregateException ex)
-            {
-                foreach (var innerException in ex.InnerExceptions)
-                {
-                    _log.Error(innerException.Message);
-                    _log.Error(innerException.GetType().Name);
-                }
-
-                Environment.ExitCode = -1;
-            }
             catch (Exception ex)
             {
-                if (!string.IsNullOrWhiteSpace(ex.Message))
-                {
-                    _log.Error(ex.Message);
-                    _log.Error(ex.GetType().Name);
-                }
+                _log.Error(Helpers.Debug.GetAllExceptionMessages(ex));
 
                 Environment.ExitCode = -1;
             }
@@ -141,7 +127,9 @@ namespace DockerExporter
             // We default to displaying Info or higher but allow this to be reconfiured later, if the user wishes.
             _filteringLogListener = new FilteringLogListener(new ConsoleLogListener())
             {
+#if !DEBUG
                 MinimumSeverity = LogEntrySeverity.Info
+#endif
             };
 
             Log.Default.RegisterListener(_filteringLogListener);
