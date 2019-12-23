@@ -33,11 +33,9 @@ namespace DockerExporter
 
             Metrics.DefaultRegistry.AddBeforeCollectCallback(UpdateMetrics);
 
+            var server = new MetricServer(9417);
 #if DEBUG
-            var server = new MetricServer("localhost", 3652);
-            _log.Info($"Open http://localhost:3652/metrics to initiate a probe.");
-#else
-            var server = new MetricServer(80);
+            _log.Info($"Open http://localhost:9417/metrics to initiate a probe.");
 #endif
 
             server.Start();
@@ -98,10 +96,10 @@ namespace DockerExporter
             }
             catch (Exception ex)
             {
-                // TODO: Now what? If we throw here prometheus-net will just reject the scrape...
-                // ... but what if this is a fatal error that we want to crash the app with?
+                // Errors that reach this point are fatal errors that we should never hide.
                 _log.Error(Helpers.Debug.GetAllExceptionMessages(ex));
-                Debugger.Break();
+                _log.Error(ex.ToString());
+                Environment.Exit(-1);
             }
         }
 
