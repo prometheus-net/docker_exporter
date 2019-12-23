@@ -16,9 +16,6 @@ namespace DockerExporter
 
         public ContainerTrackerResourceMetrics(string id, string displayName)
         {
-            _id = id;
-            _displayName = displayName;
-
             CpuUsage = BaseCpuUsage.WithLabels(id, displayName);
             CpuCapacity = BaseCpuCapacity.WithLabels(id, displayName);
             MemoryUsage = BaseMemoryUsage.WithLabels(id, displayName);
@@ -27,9 +24,6 @@ namespace DockerExporter
             TotalDiskBytesRead = BaseTotalDiskBytesRead.WithLabels(id, displayName);
             TotalDiskBytesWrite = BaseTotalDiskBytesWrite.WithLabels(id, displayName);
         }
-
-        private readonly string _id;
-        private readonly string _displayName;
 
         public void Dispose()
         {
