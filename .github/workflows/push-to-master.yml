@@ -1,4 +1,6 @@
-on: [push, pull_request]
+on:
+  push:
+    branches: ['master']
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,6 +18,7 @@ jobs:
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: sandersaares/test123
+        name: sandersaares/test123:cb
         username: sandersaares
         password: ${{ secrets.docker_hub_token }}
+        snapshot: true

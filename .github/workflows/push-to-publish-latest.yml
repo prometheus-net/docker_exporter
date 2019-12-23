@@ -1,0 +1,24 @@
+on:
+  push:
+    branches: ['publish-latest']
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - id: make_version_string
+      uses: ./.github/actions/make-version-string
+      with:
+        assemblyInfoPath: AssemblyInfo.cs
+    - uses: ./.github/actions/expand-tokens
+      env:
+        VERSIONSTRING: ${{ steps.make_version_string.outputs.versionstring }}
+      with:
+        path: Constants.cs
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: sandersaares/test123:latest
+        username: sandersaares
+        password: ${{ secrets.docker_hub_token }}
+        snapshot: true
