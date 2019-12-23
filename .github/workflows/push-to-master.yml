@@ -19,7 +19,7 @@ jobs:
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: sandersaares/test123:cb
-        username: sandersaares
+        name: prometheusnet/docker_exporter:cb
+        username: prometheusnet
         password: ${{ secrets.docker_hub_token }}
         snapshot: true
