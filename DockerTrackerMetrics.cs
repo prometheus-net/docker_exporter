@@ -21,5 +21,11 @@ namespace DockerExporter
             {
                 Buckets = Constants.DurationBuckets
             });
+
+        public static readonly Gauge SuccessfulProbeTime = Metrics
+            .CreateGauge("docker_probe_successfully_completed_time", "When the last Docker probe was successfully completed.", new GaugeConfiguration
+            {
+                SuppressInitialValue = true
+            });
     }
 }

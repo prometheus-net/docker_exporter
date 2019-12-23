@@ -106,6 +106,8 @@ namespace DockerExporter
             // Only exceptions from the update calls should be terminal exceptions,
             // so it is fine not to catch anything that may be thrown here.
             await Task.WhenAll(updateTasks);
+
+            DockerTrackerMetrics.SuccessfulProbeTime.SetToCurrentTimeUtc();
         }
 
         private async Task WaitForPredecessorUpdateAsync(CancellationToken cancel)
