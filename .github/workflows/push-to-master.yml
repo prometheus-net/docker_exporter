@@ -10,6 +10,7 @@ jobs:
       uses: ./.github/actions/make-version-string
       with:
         assemblyInfoPath: AssemblyInfo.cs
+        primaryBranch: 'latest'
     - uses: ./.github/actions/expand-tokens
       env:
         VERSIONSTRING: ${{ steps.make_version_string.outputs.versionstring }}

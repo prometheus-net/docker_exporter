@@ -4,6 +4,9 @@ inputs:
   assemblyInfoPath:
     description: 'Path to a .NET style AssemblyInfo file containing the numeric version component.'
     required: true
+  primaryBranch:
+    description: 'Name of the primary branch, the one that is published without any version string prefix.'
+    default: 'master'
 outputs:
   versionstring:
     description: 'The generated version string'
