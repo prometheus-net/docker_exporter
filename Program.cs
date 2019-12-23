@@ -74,7 +74,7 @@ namespace DockerExporter
                 "",
                 "General",
                 { "h|?|help", "Displays usage instructions.", val => showHelp = val != null },
-                { "docker-url=", "URL to use for accessing Docker.", val => _logic.DockerUrl = val },
+                { "docker-url=", $"URL to use for accessing Docker. Defaults to {_logic.DockerUrl}", val => _logic.DockerUrl = val },
 
                 "",
                 "Diagnostics",
