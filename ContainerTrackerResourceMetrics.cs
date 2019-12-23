@@ -33,13 +33,24 @@ namespace DockerExporter
 
         public void Dispose()
         {
-            BaseCpuUsage.RemoveLabelled(_id, _displayName);
-            BaseCpuCapacity.RemoveLabelled(_id, _displayName);
-            BaseMemoryUsage.RemoveLabelled(_id, _displayName);
-            BaseTotalNetworkBytesIn.RemoveLabelled(_id, _displayName);
-            BaseTotalNetworkBytesOut.RemoveLabelled(_id, _displayName);
-            BaseTotalDiskBytesRead.RemoveLabelled(_id, _displayName);
-            BaseTotalDiskBytesWrite.RemoveLabelled(_id, _displayName);
+            CpuUsage.Remove();
+            CpuCapacity.Remove();
+            MemoryUsage.Remove();
+            TotalNetworkBytesIn.Remove();
+            TotalNetworkBytesOut.Remove();
+            TotalDiskBytesRead.Remove();
+            TotalDiskBytesWrite.Remove();
+        }
+
+        public void Unpublish()
+        {
+            CpuUsage.Unpublish();
+            CpuCapacity.Unpublish();
+            MemoryUsage.Unpublish();
+            TotalNetworkBytesIn.Unpublish();
+            TotalNetworkBytesOut.Unpublish();
+            TotalDiskBytesRead.Unpublish();
+            TotalDiskBytesWrite.Unpublish();
         }
 
         // While logically counters, all of these are gauges because we do not know when Docker might reset the values.

@@ -31,7 +31,7 @@ namespace DockerExporter
 
             _tracker = new DockerTracker(new Uri(DockerUrl));
 
-            Metrics.DefaultRegistry.AddBeforeCollectCallback(UpdateMetrics);
+            Metrics.DefaultRegistry.AddBeforeCollectCallback(UpdateMetricsAsync);
 
             var server = new MetricServer(9417);
 #if DEBUG
@@ -74,17 +74,19 @@ namespace DockerExporter
         /// This acts as a primitive form of rate control to avoid overloading the fragile Docker API.
         /// The implementation for this is in DockerTracker.
         /// </remarks>
-        private void UpdateMetrics()
+        private async Task UpdateMetricsAsync(CancellationToken cancel)
         {
             _log.Debug("Probing Docker.");
 
             using var inlineCancellation = new CancellationTokenSource(Constants.MaxInlineUpdateDuration);
+            using var combinedCancellation = CancellationTokenSource.CreateLinkedTokenSource(inlineCancellation.Token, cancel);
+
             var updateTask = _tracker!.TryUpdateAsync()
-                .WithAbandonment(inlineCancellation.Token);
+                .WithAbandonment(combinedCancellation.Token);
 
             try
             {
-                updateTask.WaitAndUnwrapExceptions();
+                await updateTask;
             }
             catch (TaskCanceledException) when (inlineCancellation.IsCancellationRequested)
             {

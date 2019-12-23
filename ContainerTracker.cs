@@ -1,14 +1,12 @@
 ﻿using Axinom.Toolkit;
-using Prometheus;
 using Docker.DotNet;
 using Docker.DotNet.Models;
+using Prometheus;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DockerExporter
 {
@@ -22,10 +20,14 @@ namespace DockerExporter
     sealed class ContainerTracker : IDisposable
     {
         public string Id { get; }
+        public string DisplayName { get; }
 
-        public ContainerTracker(string id)
+        public ContainerTracker(string id, string displayName)
         {
             Id = id;
+            DisplayName = displayName;
+
+            _metrics = new ContainerTrackerMetrics(id, displayName);
         }
 
         public void Dispose()
@@ -34,27 +36,33 @@ namespace DockerExporter
             _stateMetrics?.Dispose();
         }
 
+        public void Unpublish()
+        {
+            _resourceMetrics?.Unpublish();
+            _stateMetrics?.Unpublish();
+        }
+
         /// <summary>
         /// Requests the tracker to update its data set.
         /// </summary>
         /// <remarks>
-        /// May be called multiple times concurrently.
-        /// 
         /// Method does not throw exceptions on transient failures, merely logs and ignores them.
         /// </remarks>
         public async Task TryUpdateAsync(DockerClient client, CancellationToken cancel)
         {
             ContainerInspectResponse container;
-            StatsRecorder resourceStatsRecorder = new StatsRecorder();
+            var resourceStatsRecorder = new StatsRecorder();
 
             try
             {
                 // First, inspect to get some basic information.
-                container = await client.Containers.InspectContainerAsync(Id, cancel);
+                using (_metrics.InspectContainerDuration.NewTimer())
+                    container = await client.Containers.InspectContainerAsync(Id, cancel);
 
                 // Then query for the latest resource usage stats (if container is running).
                 if (container.State.Running)
                 {
+                    using var statsTimer = _metrics.GetResourceStatsDuration.NewTimer();
                     await client.Containers.GetContainerStatsAsync(Id, new ContainerStatsParameters
                     {
                         Stream = false // Only get latest, then stop.
@@ -63,12 +71,13 @@ namespace DockerExporter
             }
             catch (Exception ex)
             {
-                // TODO: DockerTrackerMetrics.ListContainersErrorCount.Inc();
+                _metrics.FailedProbeCount.Inc();
                 _log.Error(Helpers.Debug.GetAllExceptionMessages(ex));
                 _log.Debug(ex.ToString()); // Only to verbose output.
 
                 // Errors are ignored - if we fail to get data, we just skip an update and log the failure.
-                // The next update will hopefully get past the error.
+                // The next update will hopefully get past the error. For now, we just unpublish.
+                Unpublish();
                 return;
             }
 
@@ -77,9 +86,8 @@ namespace DockerExporter
             // Now that we have the data assembled, update the metrics.
             if (_stateMetrics == null)
             {
-                var displayName = GetDisplayNameOrId(container);
-                _log.Debug($"First update of state metrics for {displayName} ({Id}).");
-                _stateMetrics = new ContainerTrackerStateMetrics(Id, displayName);
+                _log.Debug($"First update of state metrics for {DisplayName} ({Id}).");
+                _stateMetrics = new ContainerTrackerStateMetrics(Id, DisplayName);
             }
 
             UpdateStateMetrics(_stateMetrics, container);
@@ -88,16 +96,16 @@ namespace DockerExporter
             {
                 if (_resourceMetrics == null)
                 {
-                    var displayName = GetDisplayNameOrId(container);
-                    _log.Debug($"Initializing resource metrics for {displayName} ({Id}).");
-                    _resourceMetrics = new ContainerTrackerResourceMetrics(Id, displayName);
+                    _log.Debug($"Initializing resource metrics for {DisplayName} ({Id}).");
+                    _resourceMetrics = new ContainerTrackerResourceMetrics(Id, DisplayName);
                 }
 
                 UpdateResourceMetrics(_resourceMetrics, container, resourceStatsRecorder.Response);
             }
             else
             {
-                // TODO: It could be we already had resource metrics and now they should go away.
+                // It could be we already had resource metrics and now they should go away.
+                // They'll be recreated once we get the resource metrics again (e.g. after it starts).
                 _resourceMetrics?.Dispose();
                 _resourceMetrics = null;
             }
@@ -201,20 +209,10 @@ namespace DockerExporter
             public void Report(ContainerStatsResponse value) => Response = value;
         }
 
-        /// <summary>
-        /// If a display name can be determined, returns it. Otherwise returns the container ID.
-        /// </summary>
-        private static string GetDisplayNameOrId(ContainerInspectResponse container)
-        {
-            if (!string.IsNullOrWhiteSpace(container.Name))
-                return container.Name.Trim('/');
-
-            return container.ID;
-        }
-
         // We just need a monotonically increasing timer that does not use excessively large numbers (no 1970 base).
         private static readonly Stopwatch CpuBaselineTimer = Stopwatch.StartNew();
 
+        private ContainerTrackerMetrics _metrics;
         private ContainerTrackerStateMetrics? _stateMetrics;
         private ContainerTrackerResourceMetrics? _resourceMetrics;
 

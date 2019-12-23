@@ -58,10 +58,12 @@ namespace DockerExporter
 
             if (writeLock == null)
             {
-                // Otherwise, we just no-op once the one that came before has updated the data.
+                // Otherwise, we just no-op once the earlier probe request has updated the data.
                 await WaitForPredecessorUpdateAsync(cts.Token);
                 return;
             }
+
+            using var probeDurationTimer = DockerTrackerMetrics.ProbeDuration.NewTimer();
 
             using var client = _clientConfiguration.CreateClient();
 
@@ -69,6 +71,8 @@ namespace DockerExporter
 
             try
             {
+                using var listDurationTimer = DockerTrackerMetrics.ListContainersDuration.NewTimer();
+
                 allContainers = await client.Containers.ListContainersAsync(new ContainersListParameters
                 {
                     All = true
@@ -83,9 +87,10 @@ namespace DockerExporter
                 // Errors are ignored - if we fail to get data, we just skip an update and log the failure.
                 // The next update will hopefully get past the error.
 
-                // We won't even try update the trackers if we can't even list the containers.
-                // TODO: Is this wise? What if individual container data is still available?
-                // Then again, if listing containers already does not work, can you expect anything to work?
+                // We will not remove the trackers yet but we will unpublish so we don't keep stale data published.
+                foreach (var tracker in _containerTrackers.Values)
+                    tracker.Unpublish();
+
                 return;
             }
 
@@ -122,19 +127,36 @@ namespace DockerExporter
             var newIds = containerIds.Except(trackedIds);
             foreach (var id in newIds)
             {
-                _log.Debug($"Encountered container for the first time: {id}");
-                _containerTrackers[id] = new ContainerTracker(id);
+                var displayName = GetDisplayNameOrId(allContainers.Single(c => c.ID == id));
+                _log.Debug($"Encountered container for the first time: {displayName} ({id}).");
+
+                _containerTrackers[id] = new ContainerTracker(id, displayName);
             }
 
             // Remove the trackers of any removed containers.
             var removedIds = trackedIds.Except(containerIds);
             foreach (var id in removedIds)
             {
-                _log.Debug($"Tracked container no longer exists. Removing: {id}");
                 var tracker = _containerTrackers[id];
+
+                _log.Debug($"Tracked container no longer exists. Removing: {tracker.DisplayName} ({id}).");
+
                 tracker.Dispose();
                 _containerTrackers.Remove(id);
             }
+        }
+
+        /// <summary>
+        /// If a display name can be determined, returns it. Otherwise returns the container ID.
+        /// </summary>
+        private static string GetDisplayNameOrId(ContainerListResponse container)
+        {
+            var name = container.Names.FirstOrDefault();
+
+            if (!string.IsNullOrWhiteSpace(name))
+                return name.Trim('/');
+
+            return container.ID;
         }
 
         // Synchronized - only single threaded access occurs.

@@ -25,7 +25,7 @@
     <PackageReference Include="Axinom.Toolkit" Version="14.0.0" />
     <PackageReference Include="Docker.DotNet" Version="3.125.2" />
     <PackageReference Include="Mono.Options" Version="5.3.0.1" />
-    <PackageReference Include="prometheus-net" Version="3.4.0-pre-000079-eff2a83" />
+    <PackageReference Include="prometheus-net" Version="3.4.0-pre-000082-546478d" />
   </ItemGroup>
 
 </Project>

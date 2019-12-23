@@ -12,22 +12,23 @@ namespace DockerExporter
 
         public ContainerTrackerStateMetrics(string id, string displayName)
         {
-            _id = id;
-            _displayName = displayName;
-
             RestartCount = BaseRestartCount.WithLabels(id, displayName);
             RunningState = BaseRunningState.WithLabels(id, displayName);
             StartTime = BaseStartTime.WithLabels(id, displayName);
         }
 
-        private readonly string _id;
-        private readonly string _displayName;
-
         public void Dispose()
         {
-            BaseRestartCount.RemoveLabelled(_id, _displayName);
-            BaseRunningState.RemoveLabelled(_id, _displayName);
-            BaseStartTime.RemoveLabelled(_id, _displayName);
+            RestartCount.Remove();
+            RunningState.Remove();
+            StartTime.Remove();
+        }
+
+        public void Unpublish()
+        {
+            RestartCount.Unpublish();
+            RunningState.Unpublish();
+            StartTime.Unpublish();
         }
 
         private static readonly Gauge BaseRestartCount = Metrics

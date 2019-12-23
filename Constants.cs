@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Prometheus;
+using System;
 
 namespace DockerExporter
 {
@@ -25,5 +26,10 @@ namespace DockerExporter
         /// more time than this. The next scrape will try again from scratch.
         /// </summary>
         public static readonly TimeSpan MaxTotalUpdateDuration = TimeSpan.FromMinutes(2);
+
+        /// <summary>
+        /// The default buckets used to measure Docker probe operation durations.
+        /// </summary>
+        public static readonly double[] DurationBuckets = Histogram.ExponentialBuckets(0.5, 1.5, 14);
     }
 }
