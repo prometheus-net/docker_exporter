@@ -27,7 +27,7 @@ namespace DockerExporter
             Id = id;
             DisplayName = displayName;
 
-            _metrics = new ContainerTrackerMetrics(id, displayName);
+            _metrics = new ContainerTrackerMetrics(displayName);
         }
 
         public void Dispose()
@@ -87,7 +87,7 @@ namespace DockerExporter
             if (_stateMetrics == null)
             {
                 _log.Debug($"First update of state metrics for {DisplayName} ({Id}).");
-                _stateMetrics = new ContainerTrackerStateMetrics(Id, DisplayName);
+                _stateMetrics = new ContainerTrackerStateMetrics(DisplayName);
             }
 
             UpdateStateMetrics(_stateMetrics, container);
@@ -97,7 +97,7 @@ namespace DockerExporter
                 if (_resourceMetrics == null)
                 {
                     _log.Debug($"Initializing resource metrics for {DisplayName} ({Id}).");
-                    _resourceMetrics = new ContainerTrackerResourceMetrics(Id, DisplayName);
+                    _resourceMetrics = new ContainerTrackerResourceMetrics(DisplayName);
                 }
 
                 UpdateResourceMetrics(_resourceMetrics, container, resourceStatsRecorder.Response);

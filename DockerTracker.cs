@@ -129,7 +129,7 @@ namespace DockerExporter
             var newIds = containerIds.Except(trackedIds);
             foreach (var id in newIds)
             {
-                var displayName = GetDisplayNameOrId(allContainers.Single(c => c.ID == id));
+                var displayName = GetDisplayName(allContainers.Single(c => c.ID == id));
                 _log.Debug($"Encountered container for the first time: {displayName} ({id}).");
 
                 _containerTrackers[id] = new ContainerTracker(id, displayName);
@@ -149,16 +149,17 @@ namespace DockerExporter
         }
 
         /// <summary>
-        /// If a display name can be determined, returns it. Otherwise returns the container ID.
+        /// If the container has a name assigned, it is used.
+        /// Otherwise, the first 12 characters of the ID are used.
         /// </summary>
-        private static string GetDisplayNameOrId(ContainerListResponse container)
+        private static string GetDisplayName(ContainerListResponse container)
         {
             var name = container.Names.FirstOrDefault();
 
             if (!string.IsNullOrWhiteSpace(name))
                 return name.Trim('/');
 
-            return container.ID;
+            return container.ID.Substring(0, 12);
         }
 
         // Synchronized - only single threaded access occurs.

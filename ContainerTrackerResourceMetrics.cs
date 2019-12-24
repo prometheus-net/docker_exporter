@@ -14,15 +14,15 @@ namespace DockerExporter
         public Gauge.Child TotalDiskBytesRead { get; private set; }
         public Gauge.Child TotalDiskBytesWrite { get; private set; }
 
-        public ContainerTrackerResourceMetrics(string id, string displayName)
+        public ContainerTrackerResourceMetrics(string displayName)
         {
-            CpuUsage = BaseCpuUsage.WithLabels(id, displayName);
-            CpuCapacity = BaseCpuCapacity.WithLabels(id, displayName);
-            MemoryUsage = BaseMemoryUsage.WithLabels(id, displayName);
-            TotalNetworkBytesIn = BaseTotalNetworkBytesIn.WithLabels(id, displayName);
-            TotalNetworkBytesOut = BaseTotalNetworkBytesOut.WithLabels(id, displayName);
-            TotalDiskBytesRead = BaseTotalDiskBytesRead.WithLabels(id, displayName);
-            TotalDiskBytesWrite = BaseTotalDiskBytesWrite.WithLabels(id, displayName);
+            CpuUsage = BaseCpuUsage.WithLabels(displayName);
+            CpuCapacity = BaseCpuCapacity.WithLabels(displayName);
+            MemoryUsage = BaseMemoryUsage.WithLabels(displayName);
+            TotalNetworkBytesIn = BaseTotalNetworkBytesIn.WithLabels(displayName);
+            TotalNetworkBytesOut = BaseTotalNetworkBytesOut.WithLabels(displayName);
+            TotalDiskBytesRead = BaseTotalDiskBytesRead.WithLabels(displayName);
+            TotalDiskBytesWrite = BaseTotalDiskBytesWrite.WithLabels(displayName);
         }
 
         public void Dispose()
@@ -70,12 +70,9 @@ namespace DockerExporter
         private static readonly Gauge BaseTotalDiskBytesWrite = Metrics
             .CreateGauge("docker_container_disk_write_bytes", "Total bytes written to disk by a container.", ConfigureGauge());
 
-        private static string[] LabelNames(params string[] extra) =>
-            new[] { "id", "display_name" }.Concat(extra).ToArray();
-
         private static GaugeConfiguration ConfigureGauge() => new GaugeConfiguration
         {
-            LabelNames = LabelNames(),
+            LabelNames = new[] { "display_name" },
             SuppressInitialValue = true
         };
     }

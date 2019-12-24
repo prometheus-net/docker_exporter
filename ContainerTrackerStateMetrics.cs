@@ -1,6 +1,5 @@
 ﻿using Prometheus;
 using System;
-using System.Linq;
 
 namespace DockerExporter
 {
@@ -10,11 +9,11 @@ namespace DockerExporter
         public Gauge.Child RunningState { get; private set; }
         public Gauge.Child StartTime { get; private set; }
 
-        public ContainerTrackerStateMetrics(string id, string displayName)
+        public ContainerTrackerStateMetrics(string displayName)
         {
-            RestartCount = BaseRestartCount.WithLabels(id, displayName);
-            RunningState = BaseRunningState.WithLabels(id, displayName);
-            StartTime = BaseStartTime.WithLabels(id, displayName);
+            RestartCount = BaseRestartCount.WithLabels(displayName);
+            RunningState = BaseRunningState.WithLabels(displayName);
+            StartTime = BaseStartTime.WithLabels(displayName);
         }
 
         public void Dispose()
@@ -40,12 +39,9 @@ namespace DockerExporter
         private static readonly Gauge BaseStartTime = Metrics
             .CreateGauge("docker_container_start_time", "Timestamp indicating when the container was started. Does not get reset by automatic restarts.", ConfigureGauge());
 
-        private static string[] LabelNames(params string[] extra) =>
-            new[] { "id", "display_name" }.Concat(extra).ToArray();
-
         private static GaugeConfiguration ConfigureGauge() => new GaugeConfiguration
         {
-            LabelNames = LabelNames(),
+            LabelNames = new[] { "display_name" },
             SuppressInitialValue = true
         };
     }

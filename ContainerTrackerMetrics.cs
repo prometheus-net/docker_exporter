@@ -12,9 +12,9 @@ namespace DockerExporter
         public Histogram InspectContainerDuration => BaseInspectContainerDuration;
         public Histogram GetResourceStatsDuration => BaseGetResourceStatsDuration;
 
-        public ContainerTrackerMetrics(string id, string displayName)
+        public ContainerTrackerMetrics(string displayName)
         {
-            FailedProbeCount = BaseFailedProbeCount.WithLabels(id, displayName);
+            FailedProbeCount = BaseFailedProbeCount.WithLabels(displayName);
         }
 
         public void Dispose()
@@ -24,7 +24,7 @@ namespace DockerExporter
 
         private static readonly Counter BaseFailedProbeCount = Metrics.CreateCounter("docker_probe_container_failed_total", "Number of times the exporter failed to collect information about a specific container.", new CounterConfiguration
         {
-            LabelNames = new[] { "id", "display_name" }
+            LabelNames = new[] { "display_name" }
         });
 
         private static readonly Histogram BaseInspectContainerDuration = Metrics

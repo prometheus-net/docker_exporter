@@ -21,7 +21,7 @@ Example Prometheus scrape configuration:
 
 # What metrics are exported?
 
-Basic state (running or not), lifecycle (unexpected restart count) and resource usage metrics for each container, labeled by container ID and name. Metrics are collected from the same instance of Docker that is running the exporter app.
+Basic state (running or not), lifecycle (unexpected restart count) and resource usage metrics for each container, labeled by container name. Metrics are collected from the same instance of Docker that is running the exporter app.
 
 To see the detailed list and documentation on each metric type, open the `/metrics` URL of the running app and read the output.
 
