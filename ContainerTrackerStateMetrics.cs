@@ -34,10 +34,10 @@ namespace DockerExporter
             .CreateGauge("docker_container_restart_count", "Number of times the runtime has restarted this container without explicit user action, since the container was last started.", ConfigureGauge());
 
         private static readonly Gauge BaseRunningState = Metrics
-            .CreateGauge("docker_container_running_state", "Whether the container is running (value 1), restarting (value 0.5) or stopped (value 0).", ConfigureGauge());
+            .CreateGauge("docker_container_running_state", "Whether the container is running (1), restarting (0.5) or stopped (0).", ConfigureGauge());
 
         private static readonly Gauge BaseStartTime = Metrics
-            .CreateGauge("docker_container_start_time", "Timestamp indicating when the container was started. Does not get reset by automatic restarts.", ConfigureGauge());
+            .CreateGauge("docker_container_start_time_seconds", "Timestamp indicating when the container was started. Does not get reset by automatic restarts.", ConfigureGauge());
 
         private static GaugeConfiguration ConfigureGauge() => new GaugeConfiguration
         {
