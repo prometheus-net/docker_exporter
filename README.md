@@ -6,7 +6,7 @@ This app exports metrics about a Docker installation and any running containers 
 
 Given a Docker installation with default configuration (listening on Unix pipe):
 
-1. Execute `docker run --name docker_exporter --detach --restart always --volume "/var/run/docker.sock":"/var/run/docker.sock" --publish 9417:9417 prometheusnet/docker_exporter` to start the exporter as a Docker container.
+1. Start the exporter by executing `docker run --name docker_exporter --detach --restart always --volume "/var/run/docker.sock":"/var/run/docker.sock" --publish 9417:9417 prometheusnet/docker_exporter`
 1. Navigate to http://hostname:9417/metrics to explore the available metrics.
 1. Register `hostname:9417` in your Prometheus configuration as a scrape target.
 
