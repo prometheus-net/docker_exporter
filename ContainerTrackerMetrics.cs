@@ -24,7 +24,7 @@ namespace DockerExporter
 
         private static readonly Counter BaseFailedProbeCount = Metrics.CreateCounter("docker_probe_container_failed_total", "Number of times the exporter failed to collect information about a specific container.", new CounterConfiguration
         {
-            LabelNames = new[] { "display_name" }
+            LabelNames = new[] { "name" }
         });
 
         private static readonly Histogram BaseInspectContainerDuration = Metrics

@@ -41,7 +41,7 @@ namespace DockerExporter
 
         private static GaugeConfiguration ConfigureGauge() => new GaugeConfiguration
         {
-            LabelNames = new[] { "display_name" },
+            LabelNames = new[] { "name" },
             SuppressInitialValue = true
         };
     }
