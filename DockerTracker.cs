@@ -22,6 +22,7 @@ namespace DockerExporter
         public Uri DockerUrl { get; }
 
         private readonly DockerClientConfiguration _clientConfiguration;
+        private readonly DockerClient _client;
 
         // If an execution can get the lock on first try, it will really perform the update.
         // Otherwise, it will wait for the lock and then perform a no-op update to just leave
@@ -35,6 +36,7 @@ namespace DockerExporter
 
             // TODO: Support mutual authentication via certificates.
             _clientConfiguration = new DockerClientConfiguration(dockerUrl, null, Constants.DockerCommandTimeout);
+            _client = _clientConfiguration.CreateClient();
         }
 
         /// <summary>
@@ -65,15 +67,13 @@ namespace DockerExporter
 
             using var probeDurationTimer = DockerTrackerMetrics.ProbeDuration.NewTimer();
 
-            using var client = _clientConfiguration.CreateClient();
-
             IList<ContainerListResponse> allContainers;
 
             try
             {
                 using var listDurationTimer = DockerTrackerMetrics.ListContainersDuration.NewTimer();
 
-                allContainers = await client.Containers.ListContainersAsync(new ContainersListParameters
+                allContainers = await _client.Containers.ListContainersAsync(new ContainersListParameters
                 {
                     All = true
                 }, cts.Token);
@@ -101,7 +101,7 @@ namespace DockerExporter
             var updateTasks = new List<Task>();
 
             foreach (var tracker in _containerTrackers.Values)
-                updateTasks.Add(tracker.TryUpdateAsync(client, cts.Token));
+                updateTasks.Add(tracker.TryUpdateAsync(_client, cts.Token));
 
             // Only exceptions from the update calls should be terminal exceptions,
             // so it is fine not to catch anything that may be thrown here.
