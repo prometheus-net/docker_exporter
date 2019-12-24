@@ -2,6 +2,8 @@
 
 This app exports metrics about a Docker installation and any running containers to the [Prometheus](https://prometheus.io) metrics and monitoring system.
 
+![](Screenshot.png)
+
 # Quick start
 
 Given a Docker installation with default configuration (listening on Unix pipe):
