@@ -50,9 +50,8 @@ namespace DockerExporter
                 else
                 {
                     _log.Error("Unexpected cancellation/timeout halted execution.");
+                    Environment.ExitCode = -1;
                 }
-
-                Environment.ExitCode = -1;
             }
             catch (Exception ex)
             {
