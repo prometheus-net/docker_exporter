@@ -7,11 +7,11 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - id: make_version_string
-      uses: ./.github/actions/make-version-string
+      uses: sandersaares-actions/make-version-string@master
       with:
         assemblyInfoPath: AssemblyInfo.cs
         primaryBranch: 'latest'
-    - uses: ./.github/actions/expand-tokens
+    - uses: sandersaares-actions/expand-tokens@master
       env:
         VERSIONSTRING: ${{ steps.make_version_string.outputs.versionstring }}
       with:
