@@ -23,4 +23,4 @@ jobs:
         username: prometheusnet
         password: ${{ secrets.docker_hub_token }}
         snapshot: true
-        buildoptions: '--label version="${{ steps.make_version_string.outputs.versionstring }}"'
+        buildoptions: '--label version=${{ steps.make_version_string.outputs.versionstring }}'
