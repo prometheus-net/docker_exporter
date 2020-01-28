@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>docker_exporter</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PublishTrimmed>true</PublishTrimmed>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
