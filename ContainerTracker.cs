@@ -187,16 +187,16 @@ namespace DockerExporter
             }
             else
             {
-                var readEntries = resources.BlkioStats.IoServiceBytesRecursive
+                var readEntries = resources.BlkioStats.IoServiceBytesRecursive?
                     .Where(entry => entry.Op.Equals("read", StringComparison.InvariantCultureIgnoreCase))
                     .ToArray();
 
-                var writeEntries = resources.BlkioStats.IoServiceBytesRecursive
+                var writeEntries = resources.BlkioStats.IoServiceBytesRecursive?
                     .Where(entry => entry.Op.Equals("write", StringComparison.InvariantCultureIgnoreCase))
                     .ToArray();
 
-                var totalRead = readEntries.Any() ? readEntries.Sum(entry => (long)entry.Value) : 0;
-                var totalWrite = writeEntries.Any() ? writeEntries.Sum(entry => (long)entry.Value) : 0;
+                var totalRead = readEntries == null ? 0 : readEntries.Any() ? readEntries.Sum(entry => (long)entry.Value) : 0;
+                var totalWrite = writeEntries == null ? 0 : writeEntries.Any() ? writeEntries.Sum(entry => (long)entry.Value) : 0;
 
                 metrics.TotalDiskBytesRead.Set(totalRead);
                 metrics.TotalDiskBytesWrite.Set(totalWrite);
