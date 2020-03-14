@@ -13,7 +13,7 @@ namespace DockerExporter
         /// again later. This limit is applied per individual API call, so does not reflect the
         /// total possible duration of a scrape, which is handled by the timeout values below.
         /// </summary>
-        public static readonly TimeSpan DockerCommandTimeout = TimeSpan.FromSeconds(30);
+        public static readonly TimeSpan DockerCommandTimeout = TimeSpan.FromSeconds(60);
 
         /// <summary>
         /// We are willing to delay a single scrape up to this long to wait for fresh data.
