@@ -11,12 +11,15 @@ Given a Docker installation with default configuration (listening on Unix pipe):
 1. Start the exporter by executing `docker run --name docker_exporter --detach --restart always --volume "/var/run/docker.sock":"/var/run/docker.sock" --publish 9417:9417 prometheusnet/docker_exporter`
 1. Navigate to http://hostname:9417/metrics to explore the available metrics.
 1. Register `hostname:9417` in your Prometheus configuration as a scrape target.
+  * Scrape interval must be greater than 20 seconds!
 1. If using Grafana, [install the template dashboard](https://grafana.com/grafana/dashboards/11467)
 
 Example Prometheus scrape configuration:
 
 ```yaml
   - job_name: 'my_docker_metrics'
+    scrape_interval: 30s
+    scrape_timeout: 30s
     static_configs:
       - targets:
         - hostname:9417
@@ -35,6 +38,10 @@ If you want more metrics exposed, file an issue and describe your exact needs.
 Detailed testing has not been done to establish the limits of compatibility. No exotic APIs are used, so incompatibilities are not expected.
 
 The executable itself is capable of reporting metrics from Windows installations of Docker (including Windows container resource usage) but there is not yet any Windows version of the image distributed. If you are interested in Windows support, please file an issue where you describe your exact scenario and the versions of Windows that are of interest to you.
+
+# Scrape timeout
+
+You *must* configure Prometheus to use a scrape timeout of more than 20 seconds. This is because Docker is often very slow at returning data, to account for which docker_exporter implements some compensating logic to return stale results. However, this compensating logic has a 20 second timer internally - if the scrape times out before this 20 second timer elapses, Prometheus will typically fail to retrieve any data when the target system is under heavy load.
 
 # Authentication
 
