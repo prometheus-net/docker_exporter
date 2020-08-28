@@ -7,12 +7,14 @@ namespace DockerExporter
     {
         public Gauge.Child RestartCount { get; private set; }
         public Gauge.Child RunningState { get; private set; }
+        public Gauge.Child HealthState { get; private set; }
         public Gauge.Child StartTime { get; private set; }
 
         public ContainerTrackerStateMetrics(string displayName)
         {
             RestartCount = BaseRestartCount.WithLabels(displayName);
             RunningState = BaseRunningState.WithLabels(displayName);
+            HealthState = BaseHealthState.WithLabels(displayName);
             StartTime = BaseStartTime.WithLabels(displayName);
         }
 
@@ -20,6 +22,7 @@ namespace DockerExporter
         {
             RestartCount.Remove();
             RunningState.Remove();
+            HealthState.Remove();
             StartTime.Remove();
         }
 
@@ -27,6 +30,7 @@ namespace DockerExporter
         {
             RestartCount.Unpublish();
             RunningState.Unpublish();
+            HealthState.Unpublish();
             StartTime.Unpublish();
         }
 
@@ -35,6 +39,9 @@ namespace DockerExporter
 
         private static readonly Gauge BaseRunningState = Metrics
             .CreateGauge("docker_container_running_state", "Whether the container is running (1), restarting (0.5) or stopped (0).", ConfigureGauge());
+
+        private static readonly Gauge BaseHealthState = Metrics
+            .CreateGauge("docker_container_health_state", "Whether the container is healthy (1), starting (0.5), unhealthy (0), or has no health information (unpublished, won't show up)", ConfigureGauge());
 
         private static readonly Gauge BaseStartTime = Metrics
             .CreateGauge("docker_container_start_time_seconds", "Timestamp indicating when the container was started. Does not get reset by automatic restarts.", ConfigureGauge());
