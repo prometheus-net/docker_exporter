@@ -41,7 +41,7 @@ namespace DockerExporter
             .CreateGauge("docker_container_running_state", "Whether the container is running (1), restarting (0.5) or stopped (0).", ConfigureGauge());
 
         private static readonly Gauge BaseHealthState = Metrics
-            .CreateGauge("docker_container_health_state", "Whether the container is healthy (1), starting (0.5) or unhealthy (0).", ConfigureGauge());
+            .CreateGauge("docker_container_health_state", "Whether the container is healthy (1), starting (0.5), unhealthy (0), or no health information (-1).", ConfigureGauge());
 
         private static readonly Gauge BaseStartTime = Metrics
             .CreateGauge("docker_container_start_time_seconds", "Timestamp indicating when the container was started. Does not get reset by automatic restarts.", ConfigureGauge());

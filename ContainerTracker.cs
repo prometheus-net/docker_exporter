@@ -122,9 +122,11 @@ namespace DockerExporter
             else
                 metrics.RunningState.Set(0);
 
-            if (container.State.Status == "healthy")
+            if (container.State.Health == null) // no health information
+                metrics.HealthState.Set(-1);
+            else if (container.State.Health.Status == "healthy")
                 metrics.HealthState.Set(1);
-            else if (container.State.Status == "starting")
+            else if (container.State.Health.Status == "starting")
                 metrics.HealthState.Set(0.5);
             else // "unhealthy"
                 metrics.HealthState.Set(0);
