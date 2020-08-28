@@ -122,6 +122,13 @@ namespace DockerExporter
             else
                 metrics.RunningState.Set(0);
 
+            if (container.State.Status == "healthy")
+                metrics.HealthState.Set(1);
+            else if (container.State.Status == "starting")
+                metrics.HealthState.Set(0.5);
+            else // "unhealthy"
+                metrics.HealthState.Set(0);
+
             if (container.State.Running && !string.IsNullOrWhiteSpace(container.State.StartedAt))
                 metrics.StartTime.SetToTimeUtc(DateTimeOffset.Parse(container.State.StartedAt));
         }
