@@ -164,7 +164,22 @@ namespace DockerExporter
             }
             else
             {
-                metrics.MemoryUsage.Set(resources.MemoryStats.Usage);
+                // the value shown in docker stats substracts cached files from memory usage on linux, do the same here
+                // see https://github.com/docker/cli/blob/d3c36a2a738ae14c8edc2af12b45917e206b58e7/cli/command/container/stats_helpers.go#L239
+                var usage = resources.MemoryStats.Usage;
+                ulong cached_files = 0;
+                if (resources.MemoryStats.Stats.TryGetValue("total_inactive_file", out var tmp))
+                {
+                    cached_files = tmp;
+                }
+                else if (resources.MemoryStats.Stats.TryGetValue("total_inactive_file", out tmp))
+                {
+                    cached_files = tmp;
+                }
+                if (cached_files < usage)
+                    usage -= cached_files;
+
+                metrics.MemoryUsage.Set(usage);
             }
 
             // Network I/O
