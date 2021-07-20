@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+    docker_exporter:
+        container_name: docker_exporter
+        image: prometheusnet/docker_exporter
+        build: .
+        restart: always
+        volumes:
+            - '/var/run/docker.sock:/var/run/docker.sock'
+        ports:
+            - '9417:9417'
